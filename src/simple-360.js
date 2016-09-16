@@ -14,17 +14,20 @@
         VERTEX_SOURCE = '\
             attribute mediump vec2 aVertexPosition;\
             varying mediump vec3 vDirection;\
+            uniform mediump mat4 proj;\
             void main(void) {\
                 gl_Position = vec4(aVertexPosition, 1.0, 1.0);\
-                vDirection = vec3(aVertexPosition, 1.0);\
+                mediump vec4 projective_direction = proj * gl_Position;\
+                vDirection = projective_direction.xyz / projective_direction.w;\
             }\
         ';
 
     /**
      * Initializes and manages WebGL components of the player.
      */
-    function WebGL(canvas) {
+    function WebGL(el, canvas) {
         this.gl = null;
+        this.el = el;
         this.canvas = canvas;
         try {
             this.gl = canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
@@ -79,7 +82,7 @@
         gl.bindTexture(gl.TEXTURE_2D, this.texture);
         gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
         gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB,
-        gl.UNSIGNED_BYTE, video);
+        gl.UNSIGNED_BYTE, this.el);
         gl.bindTexture(gl.TEXTURE_2D, null);
     };
 
@@ -113,12 +116,19 @@
         gl.useProgram(this.program);
 
         this.attributes = {};
+
         this.attributes.aVertexPosition = gl.getAttribLocation(this.program, "aVertexPosition");
         gl.enableVertexAttribArray(this.attributes.aVertexPosition);
 
         this.uniforms = {};
+
         this.uniforms.uSampler = gl.getUniformLocation(this.program, "uSampler");
         gl.enableVertexAttribArray(this.uniforms.uSampler);
+
+        this.uniforms.proj = gl.getUniformLocation(this.program, "proj");
+        gl.enableVertexAttribArray(this.uniforms.proj);
+
+        this.rotation = mat4.create();
     };
 
     WebGL.prototype.draw = function () {
@@ -136,11 +146,14 @@
         gl.bindTexture(gl.TEXTURE_2D, this.texture);
         gl.uniform1i(this.uniforms.uSampler, 0);
 
-
         gl.viewport(0, 0, this.canvas.width, this.canvas.height);
 
-        var rotation = mat4.create();
-        var perspectiveMatrix = mat4.create();
+        var proj = mat4.create();
+        //mat4.perspective(out, fovy, aspect, near, far)
+        mat4.perspective(proj, 1, this.canvas.width/this.canvas.height, 0.0001, 100)
+        mat4.invert(proj, proj);
+
+        gl.uniformMatrix4fv(this.uniforms.proj, false, proj);
 
         // Draw
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.verticesBuffer);
@@ -170,7 +183,7 @@
         this.canvas.height = this.height;
         this.el.parentNode.appendChild(this.container);
 
-        this.webGL = new WebGL(this.canvas);
+        this.webGL = new WebGL(this.el, this.canvas);
         if (!this.webGL.gl) {
             console.error("Unable to initialize WebGL context.");
         }
