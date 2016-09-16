@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Simple360Player Demo</title>
+        <link rel="stylesheet" href="css/simple-360.css">
+        <style>
+            .container {
+                margin: auto;
+                max-width: 640px;
+                max-height: 480px;
+            }
+
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h1>Simple 360 Player</h1>
+            <div id="video-player">
+                <video id="video" preload="auto" style="display: none;">
+                    <source src="bears.mp4" type="video/mp4"/>
+                </video>
+            </div>
+        </div>
+        <script src="lib/gl-matrix.js"></script>
+        <script src="src/simple-360.js"></script>
+        <script>
+            var player = new Simple360Player(document.getElementById("video")).init();
+        </script>
+    </body>
+</html>
