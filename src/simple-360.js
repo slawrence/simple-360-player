@@ -197,7 +197,6 @@
         }
 
         this.draw();
-        this.el.play();
     };
 
     Simple360Player.prototype.draw = function () {

@@ -1,3 +1,162 @@
+@import url("fonts/style.css");
+
 .simple-360-player {
     width: 100%;
+    position: relative;
+}
+
+.simple-360-controls {
+    color: #646464;
+    height: 30px;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background: #f5f5f5;
+}
+
+.simple-360-control {
+    cursor: pointer;
+    position: relative;
+    width: 40px;
+    height: 100%;
+    line-height: 30px;
+}
+
+.simple-360-control:before {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+}
+
+.simple-360-player .simple-360-play {
+    float: left;
+}
+
+.simple-360-player .icon-pause {
+    color: @primary;
+}
+
+.simple-360-pause {
+    float: left;
+}
+
+.simple-360-time {
+    float: left;
+    width: initial;
+    min-width: 56px;
+    font-size: 12px;
+    cursor: auto;
+}
+
+.simple-360-full {
+    float: right;
+}
+
+/**
+ * Volume slider
+ */
+.simple-360-volume-container {
+  position: relative;
+  float: left;
+  height: 100%;
+}
+.simple-360-volume-slider {
+  z-index: 1;
+  position: absolute;
+  top: -97px;
+  left: 8px;
+  width: 20px;
+  height: 100px;
+}
+.simple-360-volume-container .simple-360-slider-container {
+  position: relative;
+  cursor: pointer;
+  height: 100%;
+  border-radius: 3px;
+}
+.simple-360-volume-container .simple-360-slider-bg {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  margin: auto;
+  left: 0;
+  right: 0;
+  width: 10%;
+  height: 100%;
+  background: #c0c0c0;
+}
+.simple-360-volume-container .simple-360-slider-secondary {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  margin: auto;
+  left: 0;
+  right: 0;
+  width: 1px;
+  background: #646464;
+}
+.simple-360-volume-container .simple-360-slider-handle {
+  position: absolute;
+  background: #3BC4E3;
+  left: 5px;
+  width: 10px;
+  height: 4px;
+  border-radius: 3px;
+}
+.simple-360-volume-container .simple-360-slider-primary {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  margin: auto;
+  width: 10%;
+  background: #94dff0;
+}
+/**
+ * Progress slider and loading buffer
+ */
+.simple-360-progress .simple-360-slider-container {
+  position: relative;
+  cursor: pointer;
+  height: 5px;
+  width: 100%;
+  margin-top: 12.5px;
+  border-radius: 3px;
+}
+.simple-360-progress .simple-360-slider-bg {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  margin: auto;
+  width: 100%;
+  height: 3px;
+  background: #c0c0c0;
+}
+.simple-360-progress .simple-360-slider-secondary {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  margin: auto;
+  height: 3px;
+  background: #979797;
+}
+.simple-360-progress .simple-360-slider-handle {
+  position: absolute;
+  background: #3BC4E3;
+  top: -3.5px;
+  width: 2px;
+  height: 12px;
+  border-radius: 3px;
+}
+.simple-360-progress .simple-360-slider-primary {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  margin: auto;
+  height: 3px;
+  background: #94dff0;
 }
