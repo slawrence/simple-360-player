@@ -23,8 +23,13 @@
         </div>
         <script src="lib/gl-matrix.js"></script>
         <script src="src/simple-360.js"></script>
+        <script src="src/controls.js"></script>
         <script>
-            var player = new Simple360Player(document.getElementById("video")).init();
+            var videoEl = document.getElementById("video"),
+                player = new Simple360Player(videoEl);
+
+            player.init();
+            player.addPlugin(Controls);
         </script>
     </body>
 </html>

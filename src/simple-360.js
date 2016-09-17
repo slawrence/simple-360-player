@@ -127,11 +127,9 @@
 
         this.uniforms.proj = gl.getUniformLocation(this.program, "proj");
         gl.enableVertexAttribArray(this.uniforms.proj);
-
-        this.rotation = mat4.create();
     };
 
-    WebGL.prototype.draw = function () {
+    WebGL.prototype.draw = function (rotation) {
         var gl = this.gl;
 
         gl.useProgram(this.program);
@@ -149,10 +147,13 @@
         gl.viewport(0, 0, this.canvas.width, this.canvas.height);
 
         var proj = mat4.create();
-        //mat4.perspective(out, fovy, aspect, near, far)
         mat4.perspective(proj, 1, this.canvas.width/this.canvas.height, 0.0001, 100)
-        mat4.invert(proj, proj);
 
+        var rotator = mat4.create();
+        mat4.fromQuat(rotator, rotation);
+
+        mat4.multiply(proj, proj, rotator);
+        mat4.invert(proj, proj);
         gl.uniformMatrix4fv(this.uniforms.proj, false, proj);
 
         // Draw
@@ -172,6 +173,9 @@
         this.container = document.createElement('div')
         this.width = 640;
         this.height = 480;
+        this.hooks = [];
+
+        this.rotation = quat.create();
 
         this.container.className = "simple-360-player";
         this.container.appendChild(this.canvas);
@@ -193,11 +197,25 @@
     };
 
     Simple360Player.prototype.draw = function () {
-        var _this = this;
-        (function drawFrame() {
-            _this.webGL.draw();
+        var _this = this,
+            previousTime = 0;
+
+        (function drawFrame(now) {
+            var delta = now - previousTime;
+            previousTime = now;
+
+            for (var i = 0; i < _this.hooks.length; i += 1) {
+                _this.hooks[i].frame(_this);
+            }
+
+            _this.webGL.draw(_this.rotation);
             _this.reqAnimFrameID = requestAnimationFrame(drawFrame);
-        }())
+        }(0));
+    };
+
+    Simple360Player.prototype.addPlugin = function (Plugin) {
+        var plugin = new Plugin(this);
+        this.hooks.push(plugin);
     };
 
     global.Simple360Player = Simple360Player
