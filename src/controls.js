@@ -4,6 +4,8 @@
  * function is called which is required to be implemented.
  */
 (function (global) {
+    'use strict';
+
     function clamp(val, min, max) {
         if (val < min) {
             return min;
