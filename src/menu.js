@@ -127,6 +127,8 @@
         document.addEventListener('webkitfullscreenchange', onFschange);
         document.addEventListener('fullscreenchange', onFschange);
 
+        document.addEventListener('orientationchange', resize);
+
         this._progressSlider.addEventListener("change", function() {
             var newTime = _this.video.duration * (_this._progressSlider.value / 100);
             _this.video.currentTime = newTime;
