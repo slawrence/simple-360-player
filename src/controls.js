@@ -21,7 +21,7 @@
             el = player.canvas,
             lastX = 0,
             lastY = 0,
-            moving = false;
+            moving = false, mouseDn = false;
 
         this.currentX = 0;
         this.currentY = 0;
@@ -42,6 +42,13 @@
             _this._pressedKeys[event.keyCode] = false;
         }, false);
 
+
+        el.addEventListener('mousedown', function(e) {
+            if (e.which === 1) {
+                mouseDn = true;
+                dragStart(e, e);
+            }
+        }, false);
 
         el.addEventListener('mousemove', function (e) {
             dragMove(e, e);
