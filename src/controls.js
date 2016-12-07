@@ -43,36 +43,56 @@
         }, false);
 
 
-        el.addEventListener('mousedown', function(e) {
-            if (e.which === 1) {
-                moving = true;
-            }
-            lastX = e.pageX;
-            lastY = e.pageY;
+        el.addEventListener('mousemove', function (e) {
+            dragMove(e, e);
         }, false);
-
-        el.addEventListener('mousemove', function (event) {
-            var xDelta, yDelta, fudge = 0.003;
-
-            if (moving) {
-                xDelta = event.pageX - lastX;
-                yDelta = event.pageY - lastY;
-
-                lastX = event.pageX;
-                lastY = event.pageY;
-
-                _this.rotate(xDelta * fudge, yDelta * fudge);
-            }
-
+        document.addEventListener('mousemove', function (e) {
+            if (!mouseDn) return;
+            e.preventDefault();
         }, false);
 
         el.addEventListener('mouseup', function (e) {
-            moving = false;
+            mouseDn = false;
+            dragEnd();
         }, false);
 
-        el.addEventListener('mouseout', function (event) {
-            moving = false;
+        el.addEventListener('mouseout', dragEnd, false);
+        
+        el.addEventListener('touchstart', function (e) {
+            dragStart(e, e.targetTouches.item(0));
         }, false);
+        
+        el.addEventListener('touchmove', function (e) {
+            dragMove(e, e.targetTouches.item(0));
+        }, false);
+        document.addEventListener('touchmove', function (e) {
+            if (!moving) return;
+            e.preventDefault();
+        }, false);
+
+        el.addEventListener('touchend', dragEnd, false);
+
+        function dragStart(e, p) {
+            moving = true;
+            lastX = p.pageX;
+            lastY = p.pageY;
+        }
+        
+        function dragMove(e, p) {
+            if (!moving) return;
+            e.preventDefault();
+            var fudge = 0.003;
+            var x = p.pageX, y = p.pageY;
+            var xDelta = lastX - x;
+            var yDelta = lastY - y;
+            lastX = x;
+            lastY = y;
+            _this.rotate(xDelta * fudge, yDelta * fudge);
+        }
+ 
+        function dragEnd() {
+            moving = false;
+        }
 
     }
 
