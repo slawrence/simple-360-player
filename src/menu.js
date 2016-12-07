@@ -70,12 +70,26 @@
          * Add event listeners
          */
 
+        function showPlay(bPlay) {
+            _this._playPause.className = _this._playPause.className.replace(
+                bPlay? "menuicon-pause" : "menuicon-play",
+                bPlay? "menuicon-play" : "menuicon-pause"
+            );
+        }
+        this.video.addEventListener("playing", function () {
+            showPlay(false);
+        });
+        this.video.addEventListener("pause", function () {
+            showPlay(true);
+        });
+        this.video.addEventListener("ended", function () {
+            showPlay(true);
+        });
+
         this._playPause.addEventListener("click", function () {
             if (_this.video.paused) {
-                this.className = this.className.replace("menuicon-play", "menuicon-pause");
                 _this.video.play();
             } else {
-                this.className = this.className.replace("menuicon-pause", "menuicon-play");
                 _this.video.pause();
             }
         });
