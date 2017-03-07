@@ -101,7 +101,7 @@
             el = player.canvas,
             lastX = 0,
             lastY = 0,
-            moving = false;
+            moving = false, mouseDn = false;
 
         this.mobile = new Mobile();
 
@@ -128,34 +128,61 @@
 
         el.addEventListener('mousedown', function(e) {
             if (e.which === 1) {
-                moving = true;
+                mouseDn = true;
+                dragStart(e, e);
             }
-            lastX = e.pageX;
-            lastY = e.pageY;
         }, false);
 
-        el.addEventListener('mousemove', function (event) {
-            var xDelta, yDelta, fudge = 0.003;
-
-            if (moving) {
-                xDelta = event.pageX - lastX;
-                yDelta = event.pageY - lastY;
-
-                lastX = event.pageX;
-                lastY = event.pageY;
-
-                _this.rotate(xDelta * fudge, yDelta * fudge);
-            }
-
+        el.addEventListener('mousemove', function (e) {
+            dragMove(e, e);
+        }, false);
+        document.addEventListener('mousemove', function (e) {
+            if (!mouseDn) return;
+            e.preventDefault();
         }, false);
 
         el.addEventListener('mouseup', function (e) {
-            moving = false;
+            mouseDn = false;
+            dragEnd();
         }, false);
 
-        el.addEventListener('mouseout', function (event) {
-            moving = false;
+        el.addEventListener('mouseout', dragEnd, false);
+        
+        el.addEventListener('touchstart', function (e) {
+            dragStart(e, e.targetTouches.item(0));
         }, false);
+        
+        el.addEventListener('touchmove', function (e) {
+            dragMove(e, e.targetTouches.item(0));
+        }, false);
+        document.addEventListener('touchmove', function (e) {
+            if (!moving) return;
+            e.preventDefault();
+        }, false);
+
+        el.addEventListener('touchend', dragEnd, false);
+
+        function dragStart(e, p) {
+            moving = true;
+            lastX = p.pageX;
+            lastY = p.pageY;
+        }
+        
+        function dragMove(e, p) {
+            if (!moving) return;
+            e.preventDefault();
+            var fudge = 0.003;
+            var x = p.pageX, y = p.pageY;
+            var xDelta = lastX - x;
+            var yDelta = lastY - y;
+            lastX = x;
+            lastY = y;
+            _this.rotate(xDelta * fudge, yDelta * fudge);
+        }
+ 
+        function dragEnd() {
+            moving = false;
+        }
 
     }
 

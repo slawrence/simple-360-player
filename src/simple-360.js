@@ -172,11 +172,11 @@
      * Pass in the video element as 'el'
      */
     function Simple360Player(el) {
+        if (!el) return;
+        console.log('Simple360Player.init():');
         this.el = el;
         this.canvas = document.createElement('canvas');
         this.container = document.createElement('div')
-        this.width = 640;
-        this.height = 480;
         this.hooks = [];
 
         this.rotation = quat.create();
@@ -184,11 +184,20 @@
         this.container.className = "simple-360-player";
         this.container.appendChild(this.canvas);
 
+        this.canvas.width = 640;
+        this.canvas.height = 360;
+        this.canvas.style.width = '100%';
+        this.canvas.style.height = '100%';
+        this.el.addEventListener('loadedmetadata', function (e) {
+            if (!this.el.videoWidth) return;
+            this.canvas.width = Math.round(this.el.videoWidth/2);
+            this.canvas.height = Math.round(this.el.videoHeight/2);
+            console.log('loadedmetadata: video-size=(%d,%d)',this.el.videoWidth,this.el.videoHeight);
+        }.bind(this));
+
     }
 
     Simple360Player.prototype.init = function () {
-        this.canvas.width = this.width;
-        this.canvas.height = this.height;
         this.el.parentNode.appendChild(this.container);
 
         this.webGL = new WebGL(this.el, this.canvas);
