@@ -171,9 +171,8 @@
      *
      * Pass in the video element as 'el'
      */
-    function Simple360Player(el) {
-        if (!el) return;
-        console.log('Simple360Player.init():');
+    function Simple360Player(el, opts) {
+        opts = opts || {};
         this.el = el;
         this.canvas = document.createElement('canvas');
         this.container = document.createElement('div')
@@ -184,16 +183,10 @@
         this.container.className = "simple-360-player";
         this.container.appendChild(this.canvas);
 
-        this.canvas.width = 640;
-        this.canvas.height = 360;
+        this.canvas.width = opts.width || 640;
+        this.canvas.height = opts.height || 480;
         this.canvas.style.width = '100%';
         this.canvas.style.height = '100%';
-        this.el.addEventListener('loadedmetadata', function (e) {
-            if (!this.el.videoWidth) return;
-            this.canvas.width = Math.round(this.el.videoWidth/2);
-            this.canvas.height = Math.round(this.el.videoHeight/2);
-            console.log('loadedmetadata: video-size=(%d,%d)',this.el.videoWidth,this.el.videoHeight);
-        }.bind(this));
 
     }
 
@@ -228,6 +221,23 @@
     Simple360Player.prototype.addPlugin = function (Plugin) {
         var plugin = new Plugin(this);
         this.hooks.push(plugin);
+    };
+
+    Simple360Player.prototype.getScreenOrientation = function () {
+        switch (window.screen.orientation || window.screen.mozOrientation) {
+            case 'landscape-primary':
+                return 90;
+            case 'landscape-secondary':
+                return -90;
+            case 'portrait-secondary':
+                return 180;
+            case 'portrait-primary':
+                return 0;
+        }
+        if (window.orientation !== undefined) {
+            return window.orientation;
+        }
+        return 0;
     };
 
     global.Simple360Player = Simple360Player

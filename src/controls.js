@@ -6,6 +6,8 @@
 (function (global) {
     'use strict';
 
+    var playerRef;
+
     function clamp(val, min, max) {
         if (val < min) {
             return min;
@@ -14,22 +16,6 @@
             return max;
         }
         return val;
-    }
-
-    function getScreenOrientation() {
-      switch (window.screen.orientation || window.screen.mozOrientation) {
-        case 'landscape-primary':
-          return 90;
-        case 'landscape-secondary':
-          return -90;
-        case 'portrait-secondary':
-          return 180;
-        case 'portrait-primary':
-          return 0;
-      }
-      if (window.orientation !== undefined) {
-          return window.orientation;
-      }
     }
 
     function Mobile() {
@@ -74,7 +60,7 @@
         var deviceQuaternion = quat.fromValues(x, y, z, w);
 
         // Correct for the screen orientation.
-        var screenOrientation = (getScreenOrientation() * degtorad)/2;
+        var screenOrientation = (playerRef.getScreenOrientation() * degtorad)/2;
         var screenTransform = [0, 0, -Math.sin(screenOrientation), Math.cos(screenOrientation)];
 
         var deviceRotation = quat.create();
@@ -101,7 +87,10 @@
             el = player.canvas,
             lastX = 0,
             lastY = 0,
-            moving = false, mouseDn = false;
+            moving = false,
+            mouseDn = false;
+
+        playerRef = player;
 
         this.mobile = new Mobile();
 
@@ -136,6 +125,7 @@
         el.addEventListener('mousemove', function (e) {
             dragMove(e, e);
         }, false);
+
         document.addEventListener('mousemove', function (e) {
             if (!mouseDn) return;
             e.preventDefault();
@@ -147,14 +137,15 @@
         }, false);
 
         el.addEventListener('mouseout', dragEnd, false);
-        
+
         el.addEventListener('touchstart', function (e) {
             dragStart(e, e.targetTouches.item(0));
         }, false);
-        
+
         el.addEventListener('touchmove', function (e) {
             dragMove(e, e.targetTouches.item(0));
         }, false);
+
         document.addEventListener('touchmove', function (e) {
             if (!moving) return;
             e.preventDefault();
@@ -167,14 +158,23 @@
             lastX = p.pageX;
             lastY = p.pageY;
         }
-        
+
         function dragMove(e, p) {
-            if (!moving) return;
+            var fudge = 0.003,
+                x = p.pageX,
+                y = p.pageY,
+                xDelta = 0,
+                yDelta = 0;
+
+            if (!moving) {
+                return;
+            }
             e.preventDefault();
-            var fudge = 0.003;
-            var x = p.pageX, y = p.pageY;
-            var xDelta = lastX - x;
-            var yDelta = lastY - y;
+
+            xDelta = lastX - x;
+            if (!_this.mobile.orientationIsAvailable()) {
+                yDelta = lastY - y;
+            }
             lastX = x;
             lastY = y;
             _this.rotate(xDelta * fudge, yDelta * fudge);
@@ -215,7 +215,7 @@
 
         // Multiply manual, VR and mobile quats together to get overall rotation
         var rotation = quat.create();
-        quat.multiply(rotation, this.manualQuat, this.mobile.rotationQuat());
+        quat.multiply(rotation, this.mobile.rotationQuat(), this.manualQuat);
         quat.normalize(rotation, rotation);
         player.rotation = rotation;
 

@@ -56,6 +56,7 @@
         this.container.className += " minscreen";
         this.video = player.el;
         this.canvas = player.canvas;
+        this.player = player;
 
         this.initializedCanvasWidth = this.canvas.width;
         this.initializedCanvasHeight = this.canvas.height;
@@ -118,7 +119,16 @@
         function resize() {
             var dims = getDims(),
                 width = _this.isFullscreen ? dims.w : _this.initializedCanvasWidth,
-                height = _this.isFullscreen ? dims.h : _this.initializedCanvasHeight;
+                height = _this.isFullscreen ? dims.h : _this.initializedCanvasHeight,
+                orientation = player.getScreenOrientation(),
+                temp;
+
+            //is landscape
+            if (orientation === 90 || orientation === -90) {
+                temp = width;
+                width = height;
+                height = temp;
+            }
 
             _this.canvas.width = width;
             _this.canvas.height = height;
@@ -126,7 +136,6 @@
 
         function onFschange() {
             var fullscreenElement = document.fullscreenElement || document.mozFullScreenElement || document.webkitFullscreenElement;
-            console.log('here');
             if (!fullscreenElement) {
                 _this.isFullscreen = false;
                 _this.container.className = _this.container.className.replace("fullscreen", "minscreen");
@@ -135,13 +144,13 @@
                 _this.container.className = _this.container.className.replace("minscreen", "fullscreen");
             }
             resize();
-
         }
+
         document.addEventListener('mozfullscreenchange', onFschange);
         document.addEventListener('webkitfullscreenchange', onFschange);
         document.addEventListener('fullscreenchange', onFschange);
 
-        document.addEventListener('orientationchange', resize);
+        window.addEventListener('orientationchange', resize);
 
         this._progressSlider.addEventListener("change", function() {
             var newTime = _this.video.duration * (_this._progressSlider.value / 100);
