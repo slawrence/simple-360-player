@@ -27,8 +27,9 @@
         case 'portrait-primary':
           return 0;
       }
-      if (window.orientation !== undefined)
-        return window.orientation;
+      if (window.orientation !== undefined) {
+          return window.orientation;
+      }
     }
 
     function Mobile() {
@@ -48,13 +49,15 @@
     }
 
     Mobile.prototype.rotationQuat = function() {
-        if (!this.orientationIsAvailable())
+        if (!this.orientationIsAvailable()) {
             return quat.create(1, 0, 0, 0);
+        }
 
         var degtorad = Math.PI / 180; // Degree-to-Radian conversion
         var z = this.alpha * degtorad / 2;
         var x = this.beta * degtorad / 2;
         var y = this.gamma * degtorad / 2;
+
         var cX = Math.cos(x);
         var cY = Math.cos(y);
         var cZ = Math.cos(z);
@@ -75,6 +78,8 @@
         var screenTransform = [0, 0, -Math.sin(screenOrientation), Math.cos(screenOrientation)];
 
         var deviceRotation = quat.create();
+        //var deviceRotation = quat.fromValues( 0, Math.sqrt( 0.5 ),0, 0);
+        //quat.multiply(deviceQuaternion, deviceQuaternion, deviceRotation);
         quat.multiply(deviceRotation, deviceQuaternion, screenTransform);
 
         // deviceRotation is the quaternion encoding of the transformation
@@ -85,7 +90,8 @@
         // To fix the mismatch, we need to fix this.  We'll arbitrarily choose
         // North to correspond to -z (the default camera direction).
         var r22 = Math.sqrt(0.5);
-        quat.multiply(deviceRotation, quat.fromValues(-r22, 0, 0, r22), deviceRotation);
+        quat.multiply(deviceRotation, quat.fromValues(r22, 0, 0, -r22), deviceRotation);
+        quat.invert(deviceRotation, deviceRotation);
 
         return deviceRotation;
     }
@@ -186,7 +192,6 @@
         quat.normalize(rotation, rotation);
         player.rotation = rotation;
 
-        player.rotation = this.mobile.rotationQuat();
         //Keyboard
         if (this.isPressed(this.upKeys)) {
             this.rotate(0, -this.rotateSpeed);
