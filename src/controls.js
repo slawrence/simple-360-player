@@ -3,7 +3,7 @@
  * player object on contruction when plugin is added and each frame the update
  * function is called which is required to be implemented.
  */
-(function (global) {
+;(function (global) {
     'use strict';
 
     var playerRef;
@@ -82,7 +82,7 @@
         return deviceRotation;
     }
 
-    function Controls(player) {
+    function Controls(player, opts) {
         var _this = this,
             el = player.canvas,
             lastX = 0,
@@ -138,20 +138,22 @@
 
         el.addEventListener('mouseout', dragEnd, false);
 
-        el.addEventListener('touchstart', function (e) {
-            dragStart(e, e.targetTouches.item(0));
-        }, false);
+        if (opts.touch) {
+            el.addEventListener('touchstart', function (e) {
+                dragStart(e, e.targetTouches.item(0));
+            }, false);
 
-        el.addEventListener('touchmove', function (e) {
-            dragMove(e, e.targetTouches.item(0));
-        }, false);
+            el.addEventListener('touchmove', function (e) {
+                dragMove(e, e.targetTouches.item(0));
+            }, false);
 
-        document.addEventListener('touchmove', function (e) {
-            if (!moving) return;
-            e.preventDefault();
-        }, false);
+            document.addEventListener('touchmove', function (e) {
+                if (!moving) return;
+                e.preventDefault();
+            }, false);
 
-        el.addEventListener('touchend', dragEnd, false);
+            el.addEventListener('touchend', dragEnd, false);
+        }
 
         function dragStart(e, p) {
             moving = true;

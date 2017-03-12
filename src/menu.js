@@ -1,7 +1,7 @@
 /**
  * A simple menu for the Simple360Player
  */
-(function (global) {
+;(function (global) {
     'use strict';
 
     var template = "\<div>\

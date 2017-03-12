@@ -1,5 +1,19 @@
-(function (global) {
+;(function (global) {
     'use strict'
+
+    function assign(props, object) {
+        for (var prop in props) {
+            if (props.hasOwnProperty(prop)) {
+                object[prop] = props[prop];
+            }
+        }
+    }
+
+    function extend(o1, o2) {
+        var ext = Object.create(o2);
+        assign(o1, ext);
+        return ext;
+    }
 
     var FRAGMENT_SOURCE = '\
             varying mediump vec3 vDirection;\
@@ -28,6 +42,7 @@
     function WebGL(el, canvas) {
         this.gl = null;
         this.el = el;
+        this.texInitialized = false;
         this.canvas = canvas;
         try {
             this.gl = canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
@@ -69,8 +84,11 @@
 
     WebGL.prototype.initTexture = function () {
         var gl = this.gl;
+
         this.texture = gl.createTexture();
         gl.bindTexture(gl.TEXTURE_2D, this.texture);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE,
+                                   new Uint8Array([0, 0, 0, 255])); // black
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
@@ -81,12 +99,13 @@
     WebGL.prototype.updateTexture = function () {
         var gl = this.gl;
 
-        if (this.el && this.el.readyState >= 4) {
+        if (this.el && (!this.texInitialized || this.el.readyState >= 4)) {
             gl.bindTexture(gl.TEXTURE_2D, this.texture);
             gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
             gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB,
                 gl.UNSIGNED_BYTE, this.el);
             gl.bindTexture(gl.TEXTURE_2D, null);
+            this.texInitialized = true;
         }
     };
 
@@ -172,7 +191,13 @@
      * Pass in the video element as 'el'
      */
     function Simple360Player(el, opts) {
-        opts = opts || {};
+        var defaultOptions = {
+            width: 1024,
+            height: 1024,
+            touch: true
+        };
+
+        this.opts = extend(opts || {}, defaultOptions);
         this.el = el;
         this.canvas = document.createElement('canvas');
         this.container = document.createElement('div')
@@ -183,8 +208,8 @@
         this.container.className = "simple-360-player";
         this.container.appendChild(this.canvas);
 
-        this.canvas.width = opts.width || 640;
-        this.canvas.height = opts.height || 480;
+        this.canvas.width = this.opts.width;
+        this.canvas.height = this.opts.height;
         this.canvas.style.width = '100%';
         this.canvas.style.height = '100%';
 
@@ -194,6 +219,12 @@
         this.el.parentNode.appendChild(this.container);
 
         this.webGL = new WebGL(this.el, this.canvas);
+
+        var _this = this;
+        this.el.addEventListener("load", function () {
+            _this.webGL.texInitialized = false;
+        });
+
         if (!this.webGL.gl) {
             console.error("Unable to initialize WebGL context.");
         }
@@ -219,7 +250,7 @@
     };
 
     Simple360Player.prototype.addPlugin = function (Plugin) {
-        var plugin = new Plugin(this);
+        var plugin = new Plugin(this, this.opts);
         this.hooks.push(plugin);
     };
 
@@ -240,5 +271,5 @@
         return 0;
     };
 
-    global.Simple360Player = Simple360Player
-})(window)
+    global.Simple360Player = Simple360Player;
+}(window));
