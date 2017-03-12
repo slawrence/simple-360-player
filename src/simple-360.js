@@ -19,7 +19,7 @@
             varying mediump vec3 vDirection;\
             uniform sampler2D uSampler;\
             void main(void) {\
-                mediump float theta = atan(vDirection.x, -1.0 * vDirection.z);\
+                mediump float theta = atan(vDirection.x, vDirection.z);\
                 mediump float phi = atan(vDirection.y, length(vDirection.xz));\
                 gl_FragColor = texture2D(uSampler, vec2(mod(theta / (2.0*3.141592653589), 1.0), phi / 3.141592653589 + 0.5));\
             }\
