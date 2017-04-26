@@ -194,7 +194,8 @@
         var defaultOptions = {
             width: 1024,
             height: 1024,
-            touch: true
+            touch: true,
+            mouseover: false
         };
 
         this.opts = extend(opts || {}, defaultOptions);

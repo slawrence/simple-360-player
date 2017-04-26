@@ -92,10 +92,16 @@
 
         playerRef = player;
 
+        this.opts = opts;
+
         this.mobile = new Mobile();
 
         this.currentX = 0;
         this.currentY = 0;
+
+        this.mouseon = false;
+        this.mouseoverDeltaX = 0;
+        this.mouseoverDeltaY = 0;
 
         this.rotateSpeed = 0.05,
         this.leftKeys = [37]; //left arrow
@@ -138,7 +144,7 @@
 
         el.addEventListener('mouseout', dragEnd, false);
 
-        if (opts.touch) {
+        if (this.opts.touch) {
             el.addEventListener('touchstart', function (e) {
                 dragStart(e, e.targetTouches.item(0));
             }, false);
@@ -153,6 +159,30 @@
             }, false);
 
             el.addEventListener('touchend', dragEnd, false);
+        }
+
+        if (this.opts.mouseover) {
+
+            el.addEventListener('mouseover', function () {
+                _this.mouseon = true;
+            });
+
+            el.addEventListener('mouseleave', function () {
+                _this.mouseon = false;
+            });
+
+            el.addEventListener('mousemove', function (e) {
+                if (_this.mouseon) {
+                    var rect = el.getBoundingClientRect();
+                    var middlex = rect.width/2;
+                    var middley = rect.height/2;
+                    var mousex = e.clientX - rect.left;
+                    var mousey = e.clientY - rect.top;
+
+                    _this.mouseoverDeltaX = (mousex-middlex)/middlex * 0.005;
+                    _this.mouseoverDeltaY = (mousey-middley)/middley * 0.005;
+                }
+            }, false);
         }
 
         function dragStart(e, p) {
@@ -233,6 +263,13 @@
         }
         if (this.isPressed(this.rightKeys)) {
             this.rotate(this.rotateSpeed, 0);
+        }
+
+        if (this.opts.mouseover && this.mouseon) {
+            this.rotate(this.mouseoverDeltaX, this.mouseoverDeltaY);
+        } else {
+            this.mouseoverDeltaX = 0;
+            this.mouseoverDeltaY = 0;
         }
     };
 
