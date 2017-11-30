@@ -15,6 +15,27 @@
         return ext;
     }
 
+    function canPlayPromise (media) {
+        return function (resolve) {
+            var MAX_POLL = 30,
+                pollCount = 0;
+            function poll() {
+                if (media.readyState >= media.HAVE_FUTURE_DATA) {
+                    resolve();
+                } else {
+                    if (pollCount < MAX_POLL) {
+                        pollCount++;
+                        window.setTimeout(poll, 200);
+                    } else {
+                        resolve();
+                    }
+                }
+            }
+            poll();
+        };
+    };
+
+
     var FRAGMENT_SOURCE = '\
             varying mediump vec3 vDirection;\
             uniform sampler2D uSampler;\
@@ -223,6 +244,12 @@
         this.webGL = new WebGL(this.el, this.canvas);
 
         var _this = this;
+
+        var ready = new Promise(canPlayPromise(this.el));
+        ready.then(function () {
+            _this.webGL.texInitialized = false;
+        });
+
         this.el.addEventListener("load", function () {
             _this.webGL.texInitialized = false;
         });
