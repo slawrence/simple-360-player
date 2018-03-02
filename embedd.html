@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<!-- Simple embeddable JavaScript VR video player.-->
+<html>
+    <head>
+        <meta name="author" content="Daniel G. <giri@nwrk.biz>">
+        <link rel="stylesheet" href="css/simple-360.css">
+        <style>
+            .container { max-width=100%; width=100%;}
+        </style>
+    </head>
+    <body topmargin="0" leftmargin="0">
+         <script>
+            function getUrlVars() {
+                                var vars = {};
+                                var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
+                                vars[key] = value;
+                                });
+                        return vars;
+                        }
+            var vid_url = getUrlVars()["vid"];
+        </script>
+         <div class="container">
+            <div id="video-player">
+                <video id="video" crossorigin="anonymous" style="display: none;">
+                    <script>
+                        document.write('<source id="vid_src" src="'+vid_url+'" type="video/mp4"/>')
+                    </script>
+                </video>
+            </div>
+        </div>
+        <script src="lib/gl-matrix.js"></script>
+        <script src="src/simple-360.js"></script>
+        <script src="src/controls.js"></script>
+        <script src="src/menu.js"></script>
+        <script>
+
+            function getWidth() {
+                                return Math.max(
+                                document.body.scrollWidth,
+                                document.documentElement.scrollWidth,
+                                document.body.offsetWidth,
+                                document.documentElement.offsetWidth,
+                                document.documentElement.clientWidth
+                                );
+                        }
+                        function getHeight() {
+                                return Math.max(
+                                document.body.scrollHeight,
+                                document.documentElement.scrollHeight,
+                                document.body.offsetHeight,
+                                document.documentElement.offsetHeight,
+                                document.documentElement.clientHeight
+                                );
+                        }
+
+            var videoEl = document.getElementById("video");
+                var options = {
+                width: getWidth(),
+                height: getHeight(),
+                touch: true,
+                mouseover: false
+                };
+
+            player = new Simple360Player(videoEl, options);
+            player.init();
+            player.addPlugin(Controls);
+            player.addPlugin(Menu);
+        </script>
+    </body>
+</html>
